@@ -19,6 +19,7 @@
 #include <numaif.h>
 #include <vector>
 #include "FastMemcpy_Avx.h"
+// #include "fast_avx.h"
 /* how many runs to average by default */
 #define DEFAULT_NR_LOOPS 10
 
@@ -196,11 +197,12 @@ void thread_func(int index, unsigned long long block_size, unsigned long long to
 
     for (; t >= block_size; t -= block_size, src += block_size)
     {
-        dst = (char *)memcpy(dst, src, block_size) + block_size;
+        // printf("[thread %d] %ld %ld\n", index, reinterpret_cast<size_t>(src) % 32, reinterpret_cast<size_t>(dst) % 32);
+        dst = (char *)memcpy_fast(dst, src, block_size) + block_size;
     }
     if (t)
     {
-        dst = (char *)memcpy(dst, src, t) + t;
+        dst = (char *)memcpy_fast(dst, src, t) + t;
     }
     gettimeofday(&endtime, NULL);
     spend_time[index] = ((double)(endtime.tv_sec * 1000000 - starttime.tv_sec * 1000000 + endtime.tv_usec - starttime.tv_usec)) / 1000000;
